@@ -5,7 +5,6 @@
     <title>Smokypod Hub</title>
     <style>
         /* Стилі залишаємо без змін */
-        /* Додано для форми замовлення */
         .form-container {
             background: #fff;
             padding: 20px;
@@ -80,7 +79,7 @@
 
     <script src="https://cdn.emailjs.com/dist/email.min.js"></script>
     <script>
-        // Потрібно ініціалізувати EmailJS
+        // Ініціалізація EmailJS з твоїм User ID
         emailjs.init('your_user_id'); // Замініть 'your_user_id' на свій User ID з EmailJS
 
         let cart = []; // Масив для товарів у корзині
@@ -132,6 +131,7 @@
         document.getElementById("orderForm").addEventListener("submit", function (event) {
             event.preventDefault(); // Запобігаємо перезавантаженню сторінки
 
+            // Збираємо дані з форми
             let formData = {
                 name: document.getElementById("name").value,
                 email: document.getElementById("email").value,
@@ -141,8 +141,8 @@
                 total: cart.reduce((total, item) => total + item.price, 0)
             };
 
-            // Відправляємо email з даними
-            emailjs.send('your_service_id', 'your_template_id', formData)
+            // Відправляємо email на твою пошту
+            emailjs.send('service_xnletfp', 'template_gnj2lch', formData)
                 .then(function (response) {
                     alert("Ваше замовлення успішно оформлено!");
                     cart = []; // Очищаємо корзину після успішного замовлення
@@ -157,3 +157,4 @@
     </script>
 </body>
 </html>
+
