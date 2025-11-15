@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+    <meta charset="UTF-8">
+    <title>Smokypod Hub</title>
+    <style>
+        /* Стилі залишаємо без змін */
+        /* Додано для форми замовлення */
+        .form-container {
+            background: #fff;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+            margin-top: 30px;
+        }
+        .form-container h2 {
+            margin-top: 0;
+        }
+        input, textarea {
+            width: 100%;
+            padding: 10px;
+            margin: 10px 0;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+        }
+        button {
+            background-color: #008800;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        button:hover {
+            background-color: #006600;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <img src="logo.png" alt="Smokypod Hub">
+        <div>Smokypod Hub</div>
+    </header>
+
+    <div class="container">
+        <div class="product">
+            <h2>Жижа Elf Liq</h2>
+            <p>60 мл • 3 мг</p>
+            <p class="price">250 грн</p>
+            <button onclick="addToCart('Elf Liq', 250)">Додати в корзину</button>
+        </div>
+
+        <div class="product">
+            <h2>Жижа Chaser</h2>
+            <p>60 мл • 6 мг</p>
+            <p class="price">250 грн</p>
+            <button onclick="addToCart('Chaser', 250)">Додати в корзину</button>
+        </div>
+    </div>
+
+    <!-- Корзина -->
+    <div id="cart">
+        <h2>Корзина</h2>
+        <div id="cart-items"></div>
+        <div class="total-price" id="total-price">Разом: 0 грн</div>
+        <button onclick="checkout()">Оформити замовлення</button>
+    </div>
+
+    <!-- Форма для замовлення -->
+    <div class="form-container" id="order-form" style="display: none;">
+        <h2>Оформлення замовлення</h2>
+        <form id="orderForm">
+            <input type="text" id="name" name="name" placeholder="Ваше ім’я" required>
+            <input type="email" id="email" name="email" placeholder="Ваша електронна пошта" required>
+            <input type="text" id="address" name="address" placeholder="Адреса доставки" required>
+            <textarea id="message" name="message" placeholder="Коментарі до замовлення (необов'язково)"></textarea>
+            <button type="submit">Підтвердити замовлення</button>
+        </form>
+    </div>
+
+    <script src="https://cdn.emailjs.com/dist/email.min.js"></script>
+    <script>
+        // Потрібно ініціалізувати EmailJS
+        emailjs.init('your_user_id'); // Замініть 'your_user_id' на свій User ID з EmailJS
+
+        let cart = []; // Масив для товарів у корзині
+
+        // Функція для додавання товарів в корзину
+        function addToCart(productName, price) {
+            cart.push({ name: productName, price: price });
+            updateCart();
+        }
+
+        // Оновлення корзини
+        function updateCart() {
+            let cartItems = document.getElementById("cart-items");
+            let totalPrice = 0;
+            cartItems.innerHTML = ''; // Очищаємо корзину перед оновленням
+
+            cart.forEach(item => {
+                let cartItem = document.createElement("div");
+                cartItem.classList.add("cart-item");
+                cartItem.innerHTML = `
+                    <span>${item.name} - ${item.price} грн</span>
+                    <span class="remove" onclick="removeFromCart('${item.name}')">Видалити</span>
+                `;
+                cartItems.appendChild(cartItem);
+                totalPrice += item.price;
+            });
+
+            document.getElementById("total-price").innerText = `Разом: ${totalPrice} грн`;
+        }
+
+        // Видалення товару з корзини
+        function removeFromCart(productName) {
+            cart = cart.filter(item => item.name !== productName);
+            updateCart();
+        }
+
+        // Функція оформлення замовлення
+        function checkout() {
+            if (cart.length === 0) {
+                alert("Корзина порожня! Додайте товар до корзини.");
+                return;
+            }
+
+            // Показуємо форму замовлення
+            document.getElementById("order-form").style.display = "block";
+        }
+
+        // Обробка форми та відправка даних через EmailJS
+        document.getElementById("orderForm").addEventListener("submit", function (event) {
+            event.preventDefault(); // Запобігаємо перезавантаженню сторінки
+
+            let formData = {
+                name: document.getElementById("name").value,
+                email: document.getElementById("email").value,
+                address: document.getElementById("address").value,
+                message: document.getElementById("message").value,
+                cart: cart.map(item => `${item.name} - ${item.price} грн`).join('\n'),
+                total: cart.reduce((total, item) => total + item.price, 0)
+            };
+
+            // Відправляємо email з даними
+            emailjs.send('your_service_id', 'your_template_id', formData)
+                .then(function (response) {
+                    alert("Ваше замовлення успішно оформлено!");
+                    cart = []; // Очищаємо корзину після успішного замовлення
+                    updateCart();
+                    document.getElementById("order-form").reset(); // Очищаємо форму
+                    document.getElementById("order-form").style.display = "none"; // Сховати форму
+                }, function (error) {
+                    alert("Помилка при відправці замовлення. Спробуйте ще раз.");
+                    console.log(error);
+                });
+        });
+    </script>
+</body>
+</html>
